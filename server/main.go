@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -23,12 +22,7 @@ type DollPrice struct {
 	} `json:"USDBRL"`
 }
 
-// func HelloWorld(w http.ResponseWriter, r *http.Request) {
-
-// 	w.Write([]byte("Hello, World!"))
-// }
-
-func GetDollPrice(w http.ResponseWriter, r *http.Request)  {
+func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 	res, err := http.Get("https://economia.awesomeapi.com.br/json/last/USD-BRL")
 	if err != nil {
 		panic(err)
@@ -44,7 +38,12 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request)  {
 		panic(err)
 	}
 
-	fmt.Print(d)
+	// Envia o JSON no ResponseWriter
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(d)
+
+	//decoder := json.NewDecoder(r.Body)
+	//fmt.Print(d)
 
 	// res, err := http.DefaultClient.Do(req)
 	// if err != nil {
