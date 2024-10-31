@@ -1,10 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 )
+
+/*
+const (
+	limitRequestAPIDollar = 200
+)
+*/
 
 type DollPrice struct {
 	USDBRL struct {
@@ -23,7 +31,15 @@ type DollPrice struct {
 }
 
 func GetDollPrice(w http.ResponseWriter, r *http.Request) {
-	res, err := http.Get("https://economia.awesomeapi.com.br/json/last/USD-BRL")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2000*time.Millisecond)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
+	if err != nil {
+		panic(err)
+	}
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		panic(err)
 	}
@@ -32,6 +48,7 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+
 	var d DollPrice
 	err = json.Unmarshal(body, &d)
 	if err != nil {
