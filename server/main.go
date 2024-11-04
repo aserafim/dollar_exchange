@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 /*
@@ -30,6 +33,27 @@ type DollPrice struct {
 	} `json:"USDBRL"`
 }
 
+type Cotacao struct {
+	IDCotacao string
+	Cotacao   string
+}
+
+func NewCotacao(_Cotacao string) *Cotacao {
+	return &Cotacao{
+		IDCotacao: uuid.New().String(),
+		Cotacao:   _Cotacao,
+	}
+}
+
+func writeLog() bool {
+	
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+	defer cancel()
+	//bookHotel(ctx)
+	return false
+}
+
 
 func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 
@@ -50,6 +74,9 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+
+	cot := NewCotacao(string(body))
+	
 
 	var d DollPrice
 	err = json.Unmarshal(body, &d)
