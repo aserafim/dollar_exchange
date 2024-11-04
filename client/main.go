@@ -23,8 +23,12 @@ type DollPrice struct {
 	} `json:"USDBRL"`
 }
 
+type Bid struct {
+	Bid string `json:"bid"`
+}
+
 func main() {
-	req, err := http.NewRequest("GET", "http://localhost:8082", nil)
+	req, err := http.NewRequest("GET", "http://localhost:8082/cotacao", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -38,12 +42,19 @@ func main() {
 		panic(err)
 	}
 
-	//decoder := json.NewDecoder(res.Body)
-	var d DollPrice
-	err = json.Unmarshal(body, &d)
+	var b Bid
+	err = json.Unmarshal(body, &b)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(b)
 
-	fmt.Println(d)
+	// //decoder := json.NewDecoder(res.Body)
+	// var d DollPrice
+	// err = json.Unmarshal(body, &d)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// fmt.Println(d)
 }

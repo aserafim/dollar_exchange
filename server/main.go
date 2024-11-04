@@ -30,6 +30,7 @@ type DollPrice struct {
 	} `json:"USDBRL"`
 }
 
+
 func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2000*time.Millisecond)
@@ -44,6 +45,7 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	defer res.Body.Close()
+
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		panic(err)
@@ -55,9 +57,15 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	bid := struct {
+		Bid string `json:"bid"`
+	}{
+		Bid: d.USDBRL.Bid,
+	}
+
 	// Envia o JSON no ResponseWriter
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(d)
+	json.NewEncoder(w).Encode(bid)
 
 	//decoder := json.NewDecoder(r.Body)
 	//fmt.Print(d)
@@ -86,7 +94,7 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", GetDollPrice)
+	http.HandleFunc("/cotacao", GetDollPrice)
 	http.ListenAndServe(":8082", nil)
 
 	// req, err := http.NewRequest("GET", "https://economia.awesomeapi.com.br/json/last/USD-BR", nil)
