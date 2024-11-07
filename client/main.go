@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 type DollPrice struct {
@@ -27,8 +27,22 @@ type Bid struct {
 	Bid string `json:"bid"`
 }
 
+func writeFile(content string) error {
+
+	file, err := os.Create("/home/aserafim/dev-repos/go-env/dollar_exchange/out/cotacao.txt")
+	if err != nil {
+		return err
+	}
+	_, err = file.Write([]byte(content))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func main() {
-	req, err := http.NewRequest("GET", "http://localhost:8082/cotacao", nil)
+	req, err := http.NewRequest("GET", "http://localhost:8080/cotacao", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -47,14 +61,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(b)
 
-	// //decoder := json.NewDecoder(res.Body)
-	// var d DollPrice
-	// err = json.Unmarshal(body, &d)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	ret := "Dólar: " + b.Bid
 
-	// fmt.Println(d)
+	err = writeFile(ret)
+	if err != nil {
+		panic(err)
+	}
+
 }
