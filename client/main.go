@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 type DollPrice struct {
@@ -42,7 +44,11 @@ func writeFile(content string) error {
 }
 
 func main() {
-	req, err := http.NewRequest("GET", "http://localhost:8080/cotacao", nil)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2000*time.Millisecond)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8080/cotacao", nil)
 	if err != nil {
 		panic(err)
 	}
