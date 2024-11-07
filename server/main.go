@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 /*
@@ -45,17 +47,53 @@ func NewCotacao(_Cotacao string) *Cotacao {
 	}
 }
 
-func writeLog() bool {
-	
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+func writeLog(db *sql.DB, cot *Cotacao) error {
+	// Criar um contexto com timeout de 3 segundos
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	//bookHotel(ctx)
-	return false
+
+	// Preparar a instrução usando o contexto
+	stmt, err := db.PrepareContext(ctx, "INSERT INTO logs(idLog, cot) VALUES(?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	// Executar a instrução com os valores de `cot` e o contexto
+	_, err = stmt.ExecContext(ctx, cot.IDCotacao, cot.Cotacao)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
+func createTable(db *sql.DB) error {
+
+	// Cria a tabela "logs" se ela não existir
+	createTableSQL := `CREATE TABLE IF NOT EXISTS logs (
+		"idLog" TEXT NOT NULL PRIMARY KEY,
+		"cot" TEXT
+	);`
+
+	_, err := db.Exec(createTableSQL)
+	if err != nil {
+		panic(err)
+		return err
+	}
+
+	return nil
+}
 
 func GetDollPrice(w http.ResponseWriter, r *http.Request) {
+
+	db, err := sql.Open("sqlite3", "/home/aserafim/dev-repos/go-env/dollar_exchange/db/db.db")
+	if err != nil {
+		fmt.Print(err)
+	}
+	defer db.Close()
+
+	createTable(db)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2000*time.Millisecond)
 	defer cancel()
@@ -75,8 +113,10 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	//verificar se vamos usar
 	cot := NewCotacao(string(body))
-	
+	writeLog(db, cot)
+	//writeLog(db, cot, ctxDB)
 
 	var d DollPrice
 	err = json.Unmarshal(body, &d)
@@ -94,43 +134,10 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(bid)
 
-	//decoder := json.NewDecoder(r.Body)
-	//fmt.Print(d)
-
-	// res, err := http.DefaultClient.Do(req)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// io.Copy(os.Stdout, res.Body)
-	//res, err := http.DefaultClient.Do(req)
-
-	// 	if error != nil {
-	// 		return nil, error
-	// 	}
-	// 	var c ViaCEP
-	// 	error = json.Unmarshal(body, &c)
-	// 	if error != nil {
-	// 		return nil, error
-	// 	}
-
-	// 	cache[cep] = c
-
-	// 	return &c, nil
-	// }
-
 }
 
 func main() {
 	http.HandleFunc("/cotacao", GetDollPrice)
 	http.ListenAndServe(":8082", nil)
 
-	// req, err := http.NewRequest("GET", "https://economia.awesomeapi.com.br/json/last/USD-BR", nil)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// res, err := http.DefaultClient.Do(req)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// io.Copy(os.Stdout, res.Body)
 }
