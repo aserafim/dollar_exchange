@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -45,24 +46,34 @@ func writeFile(content string) error {
 
 func main() {
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2000*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8080/cotacao", nil)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Erro ao criar requisição: %v", err)
 	}
+
+	// Executa a requisição HTTP
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		panic(err)
+		// Verifica se o erro foi devido a timeout
+		if ctx.Err() == context.DeadlineExceeded {
+			log.Println("Timeout: o tempo limite foi excedido")
+		} else {
+			log.Printf("Erro na requisição: %v", err)
+		}
+		return
 	}
+	defer res.Body.Close()
+
 	//io.Copy(os.Stdout, res.Body)
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		panic(err)
 	}
 
-	var b Bid
+	var b Bid	
 	err = json.Unmarshal(body, &b)
 	if err != nil {
 		panic(err)

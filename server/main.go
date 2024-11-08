@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -62,7 +63,12 @@ func writeLog(db *sql.DB, cot *Cotacao) error {
 	// Executar a instrução com os valores de `cot` e o contexto
 	_, err = stmt.ExecContext(ctx, cot.IDCotacao, cot.Cotacao)
 	if err != nil {
-		return err
+		// Verifica se o erro foi devido a timeout
+		if ctx.Err() == context.DeadlineExceeded {
+			log.Println("Timeout: o tempo limite foi excedido")
+		} else {
+			log.Printf("Erro na requisição: %v", err)
+		}
 	}
 
 	return nil
@@ -78,7 +84,7 @@ func createTable(db *sql.DB) error {
 
 	_, err := db.Exec(createTableSQL)
 	if err != nil {
-		panic(err)
+		//panic(err)
 		return err
 	}
 
@@ -87,7 +93,7 @@ func createTable(db *sql.DB) error {
 
 func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 
-	db, err := sql.Open("sqlite3", "/home/aserafim/dev-repos/go-env/dollar_exchange/db/db.db")  
+	db, err := sql.Open("sqlite3", "/home/aserafim/dev-repos/go-env/dollar_exchange/db/db.db")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -100,7 +106,13 @@ func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
 	if err != nil {
-		panic(err)
+		// Verifica se o erro foi devido a timeout
+		if ctx.Err() == context.DeadlineExceeded {
+			log.Println("Timeout: o tempo limite foi excedido")
+		} else {
+			log.Printf("Erro na requisição: %v", err)
+		}
+		return
 	}
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
