@@ -32,7 +32,7 @@ type Bid struct {
 
 func writeFile(content string) error {
 
-	file, err := os.Create("/home/aserafim/dev-repos/go-env/dollar_exchange/out/cotacao.txt")
+	file, err := os.Create("out/cotacao.txt")
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func writeFile(content string) error {
 
 func main() {
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 100000*time.Millisecond)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8080/cotacao", nil)

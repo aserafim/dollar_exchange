@@ -93,7 +93,8 @@ func createTable(db *sql.DB) error {
 
 func GetDollPrice(w http.ResponseWriter, r *http.Request) {
 
-	db, err := sql.Open("sqlite3", "/home/aserafim/dev-repos/go-env/dollar_exchange/db/db.db")
+	//db, err := sql.Open("sqlite3", "/home/aserafim/dev-repos/go-env/dollar_exchange/db/db.db")
+	db, err := sql.Open("sqlite3", "db/db.db")
 	if err != nil {
 		fmt.Print(err)
 	}
