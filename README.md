@@ -82,7 +82,7 @@ CREATE TABLE logs (
 Cada requisição ao endpoint /cotacao salva uma entrada no banco, armazenando o JSON retornado da AwesomeAPI.
 
 ### 🔗 Endpoints
-# Método	    Endpoint	     Descrição
+**Método**	    **Endpoint**	     **Descrição**
 GET	        /cotacao	      Retorna o valor atual do dólar no formato JSON: {"bid": "5.7559"}
 
 ### ⚠️ Limitações e Observações
