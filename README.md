@@ -4,12 +4,12 @@ Este projeto consiste em uma aplicação desenvolvida em Go (Golang) composta po
 
 ## 🗂️ Estrutura do Projeto
 
-├── bkp # Backups e versões anteriores
-├── client # Cliente que consome a API local e gera um arquivo com a cotação
-├── db # Banco de dados SQLite
-├── out # Saída dos arquivos gerados pelo cliente
-├── server # Servidor HTTP que fornece a cotação
-├── testes # Arquivos de teste e scripts auxiliares
+├── bkp # Backups e versões anteriores \
+├── client # Cliente que consome a API local e gera um arquivo com a cotação \
+├── db # Banco de dados SQLite \
+├── out # Saída dos arquivos gerados pelo cliente \
+├── server # Servidor HTTP que fornece a cotação \
+├── testes # Arquivos de teste e scripts auxiliares \
 
 
 ## 🚀 Funcionalidades
