@@ -9,7 +9,7 @@ Este projeto consiste em uma aplicação desenvolvida em Go (Golang) composta po
 ├── db # Banco de dados SQLite \
 ├── out # Saída dos arquivos gerados pelo cliente \
 ├── server # Servidor HTTP que fornece a cotação \
-├── testes # Arquivos de teste e scripts auxiliares \
+├── testes # Arquivos de teste e scripts auxiliares 
 
 
 ## 🚀 Funcionalidades
