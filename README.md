@@ -1,28 +1,92 @@
-# dollar_exchange
-Projeto de conexão com api de cotação do dolar
-Olá dev, tudo bem?
- 
-Neste desafio vamos aplicar o que aprendemos sobre webserver http, contextos,
-banco de dados e manipulação de arquivos com Go.
- 
-Você precisará nos entregar dois sistemas em Go:
-- client.go
-- server.go
- 
-Os requisitos para cumprir este desafio são:
- 
-O client.go deverá realizar uma requisição HTTP no server.go solicitando a cotação do dólar.
- 
-O server.go deverá consumir a API contendo o câmbio de Dólar e Real no endereço: https://economia.awesomeapi.com.br/json/last/USD-BRL e em seguida deverá retornar no formato JSON o resultado para o cliente.
- 
-Usando o package "context", o server.go deverá registrar no banco de dados SQLite cada cotação recebida, sendo que o timeout máximo para chamar a API de cotação do dólar deverá ser de 200ms e o timeout máximo para conseguir persistir os dados no banco deverá ser de 10ms.
- 
-O client.go precisará receber do server.go apenas o valor atual do câmbio (campo "bid" do JSON). Utilizando o package "context", o client.go terá um timeout máximo de 300ms para receber o resultado do server.go.
- 
-Os 3 contextos deverão retornar erro nos logs caso o tempo de execução seja insuficiente.
- 
-O client.go terá que salvar a cotação atual em um arquivo "cotacao.txt" no formato: Dólar: {valor}
- 
-O endpoint necessário gerado pelo server.go para este desafio será: /cotacao e a porta a ser utilizada pelo servidor HTTP será a 8080.
- 
-Ao finalizar, envie o link do repositório para correção.
+# Dollar Exchange API
+
+Este projeto consiste em uma aplicação desenvolvida em Go (Golang) composta por dois serviços: um **servidor HTTP** que consulta a cotação do dólar na API pública [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas) e armazena no banco SQLite, e um **cliente** que consome essa API local e salva a cotação em um arquivo `.txt`.
+
+## 🗂️ Estrutura do Projeto
+
+├── bkp # Backups e versões anteriores
+├── client # Cliente que consome a API local e gera um arquivo com a cotação
+├── db # Banco de dados SQLite
+├── out # Saída dos arquivos gerados pelo cliente
+├── server # Servidor HTTP que fornece a cotação
+├── testes # Arquivos de teste e scripts auxiliares
+
+
+## 🚀 Funcionalidades
+
+- ✅ Servidor local exposto na porta `8080` com o endpoint `/cotacao`.
+- ✅ Consulta a cotação do dólar (`USD-BRL`) na AwesomeAPI.
+- ✅ Persiste o JSON completo retornado da API em um banco SQLite (`logs`).
+- ✅ Cliente que consome o endpoint local `/cotacao` e gera um arquivo `cotacao.txt` contendo o valor do dólar.
+
+## 🛠️ Tecnologias
+
+- [Golang](https://golang.org/)
+- [SQLite](https://www.sqlite.org/)
+- [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas)
+
+## 🔧 Pré-requisitos
+
+- Go instalado (versão 1.18 ou superior)
+- Acesso à internet (para consumo da API AwesomeAPI)
+
+## 🏗️ Instalação e Execução
+
+### 1️⃣ Clone o repositório:
+
+```bash
+git clone https://github.com/seu-usuario/dollar_exchange.git
+cd dollar_exchange
+```
+
+### 2️⃣ Instale as dependências:
+
+```bash
+go mod tidy
+```
+
+### 3️⃣ Execute o servidor:
+
+```bash
+cd server
+go run main.go
+```
+O servidor estará rodando em http://localhost:8080/cotacao.
+
+### 4️⃣ Execute o cliente em outro terminal:
+
+```bash
+cd client
+go run main.go
+```
+
+### ✔️ Resultado
+
+```bash
+out/cotacao.txt
+```
+Com o seguinte conteúdo (exemplo): Dólar: 5.7559
+
+Além disso, o banco SQLite (db/db.db) armazenará o JSON completo da cotação.
+
+
+### 📦 Banco de Dados
+O banco de dados SQLite (db.db) possui uma tabela chamada logs:
+
+```sql
+CREATE TABLE logs (
+    idLog TEXT PRIMARY KEY,
+    cot TEXT
+);
+```
+Cada requisição ao endpoint /cotacao salva uma entrada no banco, armazenando o JSON retornado da AwesomeAPI.
+
+### 🔗 Endpoints
+# Método	    Endpoint	     Descrição
+GET	        /cotacao	      Retorna o valor atual do dólar no formato JSON: {"bid": "5.7559"}
+
+### ⚠️ Limitações e Observações
+- O servidor implementa timeout para evitar requisições travadas tanto no acesso à API externa quanto na gravação no banco.
+- O cliente também possui timeout configurado.
+- A persistência no banco de dados é simples e baseada no JSON bruto retornado da API.
+- Projeto didático, ideal para aprendizado de Go, HTTP, SQLite e integração com APIs.
